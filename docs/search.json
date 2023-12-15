@@ -7,6 +7,13 @@
     "text": "Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais."
   },
   {
+    "objectID": "index.html#introdução",
+    "href": "index.html#introdução",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "",
+    "text": "Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais."
+  },
+  {
     "objectID": "index.html#carregamento-das-bibliotecas",
     "href": "index.html#carregamento-das-bibliotecas",
     "title": "Painel Oncologico SUS (2013-2023)",
@@ -19,13 +26,6 @@
     "title": "Painel Oncologico SUS (2013-2023)",
     "section": "Realizando o ETL (extract, load and transform)",
     "text": "Realizando o ETL (extract, load and transform)\nRealizamos o ETL baixando os dados do POBR para todos os meses em todos os anos disponibilizados, utilizando a função customizada ‘fetch_datasus2’. A seguir, realizamos a decodificação das variáveis através das tabelas de suporte também disponibilzados no ftp do dataSUS. Implementamos a decodificação na função ‘process_pobr’. Nessa função, também adicionamos ao dataframe, dados de coordenadas geográficas (herdado das funções do microdatasus), nomes das instituições de saúde, e informações sobre o diagnóstico com base no CID-10.\n\n\nCode\n#extract the dbc files from FTP and convert to dataframe\npobr  = fetch_datasus2(year_start = 2013,\n                       year_end = 2023,\n                       month_start = 1,\n                       month_end = 12,\n                       uf = \"all\",\n                       information_system = \"POBR\")\n\n#apply the dictionary to transform the data\npobr = process_pobr(pobr)\n\n#creating a primary key\npobr = pobr %&gt;%\n  mutate(ENTRY = rownames(pobr)) %&gt;%\n  relocate(ENTRY, .before = \"ANO_DIAGN\")\n\nnames(pobr) = tolower(names(pobr))\n\n#saving a RData\nsave(pobr, file = \"pobr.RData\")\n\n#create a connection to postgreSQL database\n\nmy_user = \"postgres\"\nmy_password = \"colocar a qui a sua senha\"\n\ncon &lt;- dbConnect(drv = RPostgres::Postgres(),\n                 dbname=\"postgres\",\n                 host = \"localhost\",\n                 port = 5432,\n                 user = my_user,\n                 password = my_password)\n\n# Write the R dataframe to the PostgreSQL table\ndbWriteTable(conn = con,\n             name = \"pobr\",   \n             value = pobr,\n             field.types = c(entry = \"SERIAL PRIMARY KEY\"),\n             overwrite = TRUE)\n\n# Close the connection\ndbDisconnect(con)\nrm(con)"
-  },
-  {
-    "objectID": "index.html#introdução",
-    "href": "index.html#introdução",
-    "title": "Painel Oncologico SUS (2013-2023)",
-    "section": "",
-    "text": "Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais."
   },
   {
     "objectID": "index.html#criando-uma-visualização-no-power-bi",
@@ -47,5 +47,12 @@
     "title": "Painel Oncologico SUS (2013-2023)",
     "section": "Considerações finais",
     "text": "Considerações finais\nO Painel Oncológico do Brasil é uma base de dados que pode indicar as principais características sobre como os diversos tipos de câncers são abordados no país, além de tendenências e pontos de melhoria."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
   }
 ]

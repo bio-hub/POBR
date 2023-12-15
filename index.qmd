@@ -91,7 +91,6 @@ Uma vez que a tabela do POBR foi importada para o database, prosseguimos criando
 
 <iframe title="oncomap v1" width="800" height="486" src="https://app.powerbi.com/view?r=eyJrIjoiN2E0NjY4NmMtMWFhYS00NzdkLWIwNzctZmU1ZTg1NzBhZjQyIiwidCI6ImRlMzE1NjI5LWUzZDItNGY4MC1iM2U0LWY2MjJiZWQ3ZmRmYyJ9&pageName=ReportSection" frameborder="0" allowFullScreen="true"></iframe>
 ```
-
 ## Insights
 
 Alguns insights interessantes sobre o POBR:
