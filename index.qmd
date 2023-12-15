@@ -1,0 +1,115 @@
+---
+title: "Painel Oncologico SUS (2013-2023)"
+author: "BioHub Solutions"
+date: 12-15-2023
+date-format: MM-DD-YYYY
+format: html
+code-fold: true
+---
+
+## Introdução
+
+Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais.
+
+## Carregamento das bibliotecas
+
+Os dados foram baixados diretamente do ftp do DataSUS (<ftp://ftp.datasus.gov.br/>) e convertidos automaticamente para dataframe utilizando os pacotes [read.dbc](https://github.com/danicat/read.dbc) e [microdatasus](https://github.com/rfsaldanha/microdatasus), respectivamente. Até a presente data, o pacote microdatasus não apresenta a possibilidade de baixar os dados do POBR, porém implementamos essa capaciadade com as funções fetch_datasus2.R e process_pobr. Algo que também optamos por fazer foi exportar diretamente o dataframe com os dados baixados do POBR para um database Postgres local. Desse modo, fica mais prático consultar os dados, assim como integrar com ferramentas de visualização, como o Power BI.
+
+```{r, warning=FALSE, message=FALSE}
+#| eval: false
+
+#carregamento das libraries
+
+library(tidyverse)
+library(read.dbc)
+library(microdatasus)
+library(DBI)
+library(RPostgres)
+
+#carregar funcoes patch
+source("arquivos_de_suporte/fetch_datasus2.R")
+source("arquivos_de_suporte/process_pobr.R")
+```
+
+## Realizando o ETL (extract, load and transform)
+
+Realizamos o ETL baixando os dados do POBR para todos os meses em todos os anos disponibilizados, utilizando a função customizada 'fetch_datasus2'. A seguir, realizamos a decodificação das variáveis através das tabelas de suporte também disponibilzados no ftp do dataSUS. Implementamos a decodificação na função 'process_pobr'. Nessa função, também adicionamos ao dataframe, dados de coordenadas geográficas (herdado das funções do microdatasus), nomes das instituições de saúde, e informações sobre o diagnóstico com base no CID-10.
+
+```{r, warning=FALSE, message=FALSE}
+#| eval: false
+
+#extract the dbc files from FTP and convert to dataframe
+pobr  = fetch_datasus2(year_start = 2013,
+                       year_end = 2023,
+                       month_start = 1,
+                       month_end = 12,
+                       uf = "all",
+                       information_system = "POBR")
+
+#apply the dictionary to transform the data
+pobr = process_pobr(pobr)
+
+#creating a primary key
+pobr = pobr %>%
+  mutate(ENTRY = rownames(pobr)) %>%
+  relocate(ENTRY, .before = "ANO_DIAGN")
+
+names(pobr) = tolower(names(pobr))
+
+#saving a RData
+save(pobr, file = "pobr.RData")
+
+#create a connection to postgreSQL database
+
+my_user = "postgres"
+my_password = "colocar a qui a sua senha"
+
+con <- dbConnect(drv = RPostgres::Postgres(),
+                 dbname="postgres",
+                 host = "localhost",
+                 port = 5432,
+                 user = my_user,
+                 password = my_password)
+
+# Write the R dataframe to the PostgreSQL table
+dbWriteTable(conn = con,
+             name = "pobr",   
+             value = pobr,
+             field.types = c(entry = "SERIAL PRIMARY KEY"),
+             overwrite = TRUE)
+
+# Close the connection
+dbDisconnect(con)
+rm(con)
+```
+
+## Criando uma visualização no Power BI
+
+Uma vez que a tabela do POBR foi importada para o database, prosseguimos criando uma dashboard no [Power BI](https://app.powerbi.com/view?r=eyJrIjoiN2E0NjY4NmMtMWFhYS00NzdkLWIwNzctZmU1ZTg1NzBhZjQyIiwidCI6ImRlMzE1NjI5LWUzZDItNGY4MC1iM2U0LWY2MjJiZWQ3ZmRmYyJ9&pageName=ReportSection). Aqui, é possível filtrar os dados por ano do diagnóstico, Unidade da Federação (UF), faixa etária e tipo de câncer. A visão geral do POBR conta com informações como tempo do diagnóstico ao tratamento, tipo de tratamento e dias de estadiamento. Além disso, alguns indicadores-chaves, como número total de casos, média de idade do diagnóstico, percentual de casos em mulheres, e estabelecimento de saúde com mais registros.
+
+```{=html}
+
+<iframe title="oncomap v1" width="800" height="486" src="https://app.powerbi.com/view?r=eyJrIjoiN2E0NjY4NmMtMWFhYS00NzdkLWIwNzctZmU1ZTg1NzBhZjQyIiwidCI6ImRlMzE1NjI5LWUzZDItNGY4MC1iM2U0LWY2MjJiZWQ3ZmRmYyJ9&pageName=ReportSection" frameborder="0" allowFullScreen="true"></iframe>
+```
+
+## Insights
+
+Alguns insights interessantes sobre o POBR:
+
+-   O tipo de câncer que mais acomete recém-nascidos é a Leucemia Linfóide (CID-10: C91);
+
+-   Nos casos entre 19 e 64 anos, 63.25% deles são em pessoas do sexo feminino;
+
+-   O ano com maior número de casos foi 2022 (612,421 casos);
+
+-   O CID-10 com maior tempo médio do diagnóstico ao tratamento é o C79 (Neoplasia maligna secundária de outras localizações), com 461.32 dias, seguido por D42 (Neoplasia de comportamento incerto ou desconhecido das meninges),c om 267.69 dias e C94 (Outras leucemias de células de tipo especificado) com 214.47 dias do diagnóstico ao tratamento.
+
+-   Roraíma é o estado que leva mais tempo diagnóstico ao tratamento para o câncer de mama (C50), com 198.85 dias.
+
+-   O IMIP, de Pernambuco, é o terciro hospital que mais diagnostica casos em pessoas com idade entre 1 e 18 anos (2546 casos).
+
+Utilizando a opção Q&A do Power BI, a obtenção de insights sobre os dados ocorre de maneira muito prática.
+
+## Considerações finais
+
+O Painel Oncológico do Brasil é uma base de dados que pode indicar as principais características sobre como os diversos tipos de câncers são abordados no país, além de tendenências e pontos de melhoria.

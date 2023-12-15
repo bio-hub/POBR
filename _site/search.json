@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "",
+    "text": "Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais."
+  },
+  {
+    "objectID": "index.html#carregamento-das-bibliotecas",
+    "href": "index.html#carregamento-das-bibliotecas",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "Carregamento das bibliotecas",
+    "text": "Carregamento das bibliotecas\nOs dados foram baixados diretamente do ftp do DataSUS (ftp://ftp.datasus.gov.br/) e convertidos automaticamente para dataframe utilizando os pacotes read.dbc e microdatasus, respectivamente. Até a presente data, o pacote microdatasus não apresenta a possibilidade de baixar os dados do POBR, porém implementamos essa capaciadade com as funções fetch_datasus2.R e process_pobr. Algo que também optamos por fazer foi exportar diretamente o dataframe com os dados baixados do POBR para um database Postgres local. Desse modo, fica mais prático consultar os dados, assim como integrar com ferramentas de visualização, como o Power BI.\n\n\nCode\n#carregamento das libraries\n\nlibrary(tidyverse)\nlibrary(read.dbc)\nlibrary(microdatasus)\nlibrary(DBI)\nlibrary(RPostgres)\n\n#carregar funcoes patch\nsource(\"arquivos_de_suporte/fetch_datasus2.R\")\nsource(\"arquivos_de_suporte/process_pobr.R\")"
+  },
+  {
+    "objectID": "index.html#realizando-o-etl-extract-load-and-transform",
+    "href": "index.html#realizando-o-etl-extract-load-and-transform",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "Realizando o ETL (extract, load and transform)",
+    "text": "Realizando o ETL (extract, load and transform)\nRealizamos o ETL baixando os dados do POBR para todos os meses em todos os anos disponibilizados, utilizando a função customizada ‘fetch_datasus2’. A seguir, realizamos a decodificação das variáveis através das tabelas de suporte também disponibilzados no ftp do dataSUS. Implementamos a decodificação na função ‘process_pobr’. Nessa função, também adicionamos ao dataframe, dados de coordenadas geográficas (herdado das funções do microdatasus), nomes das instituições de saúde, e informações sobre o diagnóstico com base no CID-10.\n\n\nCode\n#extract the dbc files from FTP and convert to dataframe\npobr  = fetch_datasus2(year_start = 2013,\n                       year_end = 2023,\n                       month_start = 1,\n                       month_end = 12,\n                       uf = \"all\",\n                       information_system = \"POBR\")\n\n#apply the dictionary to transform the data\npobr = process_pobr(pobr)\n\n#creating a primary key\npobr = pobr %&gt;%\n  mutate(ENTRY = rownames(pobr)) %&gt;%\n  relocate(ENTRY, .before = \"ANO_DIAGN\")\n\nnames(pobr) = tolower(names(pobr))\n\n#saving a RData\nsave(pobr, file = \"pobr.RData\")\n\n#create a connection to postgreSQL database\n\nmy_user = \"postgres\"\nmy_password = \"colocar a qui a sua senha\"\n\ncon &lt;- dbConnect(drv = RPostgres::Postgres(),\n                 dbname=\"postgres\",\n                 host = \"localhost\",\n                 port = 5432,\n                 user = my_user,\n                 password = my_password)\n\n# Write the R dataframe to the PostgreSQL table\ndbWriteTable(conn = con,\n             name = \"pobr\",   \n             value = pobr,\n             field.types = c(entry = \"SERIAL PRIMARY KEY\"),\n             overwrite = TRUE)\n\n# Close the connection\ndbDisconnect(con)\nrm(con)"
+  },
+  {
+    "objectID": "index.html#introdução",
+    "href": "index.html#introdução",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "",
+    "text": "Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais."
+  },
+  {
+    "objectID": "index.html#criando-uma-visualização-no-power-bi",
+    "href": "index.html#criando-uma-visualização-no-power-bi",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "Criando uma visualização no Power BI",
+    "text": "Criando uma visualização no Power BI\nUma vez que a tabela do POBR foi importada para o database, prosseguimos criando uma dashboard no Power BI. Aqui, é possível filtrar os dados por ano do diagnóstico, Unidade da Federação (UF), faixa etária e tipo de câncer. A visão geral do POBR conta com informações como tempo do diagnóstico ao tratamento, tipo de tratamento e dias de estadiamento. Além disso, alguns indicadores-chaves, como número total de casos, média de idade do diagnóstico, percentual de casos em mulheres, e estabelecimento de saúde com mais registros."
+  },
+  {
+    "objectID": "index.html#insights",
+    "href": "index.html#insights",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "Insights",
+    "text": "Insights\nAlguns insights interessantes sobre o POBR:\n\nO tipo de câncer que mais acomete recém-nascidos é a Leucemia Linfóide (CID-10: C91);\nNos casos entre 19 e 64 anos, 63.25% deles são em pessoas do sexo feminino;\nO ano com maior número de casos foi 2022 (612,421 casos);\nO CID-10 com maior tempo médio do diagnóstico ao tratamento é o C79 (Neoplasia maligna secundária de outras localizações), com 461.32 dias, seguido por D42 (Neoplasia de comportamento incerto ou desconhecido das meninges),c om 267.69 dias e C94 (Outras leucemias de células de tipo especificado) com 214.47 dias do diagnóstico ao tratamento.\nRoraíma é o estado que leva mais tempo diagnóstico ao tratamento para o câncer de mama (C50), com 198.85 dias.\nO IMIP, de Pernambuco, é o terciro hospital que mais diagnostica casos em pessoas com idade entre 1 e 18 anos (2546 casos).\n\nUtilizando a opção Q&A do Power BI, a obtenção de insights sobre os dados ocorre de maneira muito prática."
+  },
+  {
+    "objectID": "index.html#considerações-finais",
+    "href": "index.html#considerações-finais",
+    "title": "Painel Oncologico SUS (2013-2023)",
+    "section": "Considerações finais",
+    "text": "Considerações finais\nO Painel Oncológico do Brasil é uma base de dados que pode indicar as principais características sobre como os diversos tipos de câncers são abordados no país, além de tendenências e pontos de melhoria."
+  }
+]

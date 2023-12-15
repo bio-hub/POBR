@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+#arquivos para nao upar
+/bibliografia
+/nao_upar
+/.quarto/
+oncomap v1.pbix
