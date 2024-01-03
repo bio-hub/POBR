@@ -2,7 +2,7 @@
 title: "Painel Oncologico SUS (2013-2023)"
 author: "BioHub Solutions"
 date: last-modified
-date-format: "[Last Updated on] MM-DD-YYYY"
+date-format: "[Última Atualização:] DD-MM-YYYY"
 format: html
 code-fold: true
 ---
