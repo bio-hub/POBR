@@ -9,7 +9,7 @@ code-fold: true
 
 ## Introdução
 
-Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais. O último registro foi o de dezembro de 2023.
+Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 4 milhões de casos, distribuidos por todo o país. O último registro no banco de dados foi de 9 de dezembro de 2023.
 
 ## Carregamento das bibliotecas
 
