@@ -1,15 +1,15 @@
 ---
 title: "Painel Oncologico SUS (2013-2023)"
 author: "BioHub Solutions"
-date: 12-15-2023
-date-format: MM-DD-YYYY
+date: last-modified
+date-format: "[Last Updated on] MM-DD-YYYY"
 format: html
 code-fold: true
 ---
 
 ## Introdução
 
-Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais. O último registro foi o de julho de 2023.
+Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 3 milhões de casos, distribuidos por todo o país. A data da extração dos dados foi 8 de dezembro de 2023. Vale salientar, portanto, que os dados para 2023 ainda são parciais. O último registro foi o de dezembro de 2023.
 
 ## Carregamento das bibliotecas
 

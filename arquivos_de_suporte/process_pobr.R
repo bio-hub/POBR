@@ -5,7 +5,7 @@ process_pobr = function (data, municipality_data = TRUE)
   require(dplyr,quietly = TRUE)
   
   #load support tables
-  load("process_pobr.RData")
+  load("arquivos_de_suporte/process_pobr.RData")
   
   #adding POBR data transformation
   
