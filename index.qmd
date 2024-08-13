@@ -1,5 +1,5 @@
 ---
-title: "Painel Oncologico SUS (2013-2023)"
+title: "Painel Oncologico SUS (2013-2024)"
 author: "BioHub Solutions"
 date: last-modified
 date-format: "[Última Atualização:] DD-MM-YYYY"
@@ -9,7 +9,7 @@ code-fold: true
 
 ## Introdução
 
-Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2023, sobre diagnóstico e tratamento de mais de 4 milhões de casos, distribuidos por todo o país. O último registro no banco de dados foi de 9 de dezembro de 2023.
+Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2024, sobre diagnóstico e tratamento de mais de 4.5 milhões de casos, distribuidos por todo o país. O último registro no banco de dados foi de 10 de maio de 2024.
 
 ## Carregamento das bibliotecas
 
@@ -40,7 +40,7 @@ Realizamos o ETL baixando os dados do POBR para todos os meses em todos os anos 
 
 #extract the dbc files from FTP and convert to dataframe
 pobr  = fetch_datasus2(year_start = 2013,
-                       year_end = 2023,
+                       year_end = 2024,
                        month_start = 1,
                        month_end = 12,
                        uf = "all",
