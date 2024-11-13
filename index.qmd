@@ -9,7 +9,7 @@ code-fold: true
 
 ## Introdução
 
-Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2024, sobre diagnóstico e tratamento de mais de 4.5 milhões de casos, distribuidos por todo o país. O último registro no banco de dados foi de 10 de maio de 2024.
+Apresentando o Painel Oncológico do Brasil (POBR), com dados, de 2013 a 2024, sobre diagnóstico e tratamento de mais de 4.5 milhões de casos, distribuidos por todo o país. O último registro no banco de dados foi de outubro de 2024.
 
 ## Carregamento das bibliotecas
 
